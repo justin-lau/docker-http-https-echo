@@ -1,3 +1,33 @@
+const { JAEGER_AGENT_HOST, JAEGER_AGENT_PORT, JAEGER_DEBUG_LOG } = process.env;
+
+// only add tracer and exporter if both environment variables are declared
+if (JAEGER_AGENT_HOST && JAEGER_AGENT_PORT) {
+  const { NodeTracerProvider } = require("@opentelemetry/node");
+  const { SimpleSpanProcessor, ConsoleSpanExporter } = require("@opentelemetry/tracing");
+  const { JaegerExporter } = require("@opentelemetry/exporter-jaeger");
+  const provider = new NodeTracerProvider();
+
+  provider.register();
+
+  provider.addSpanProcessor(
+    new SimpleSpanProcessor(
+      new JaegerExporter({
+        serviceName: 'request-tester',
+        host: JAEGER_AGENT_HOST,
+        port: Number.parseInt(JAEGER_AGENT_PORT),
+      })
+    )
+  );
+
+  if (JAEGER_DEBUG_LOG?.toUpperCase() === 'TRUE') {
+    provider.addSpanProcessor(
+      new SimpleSpanProcessor(
+        new ConsoleSpanExporter()
+      )
+    );
+  }
+}
+
 var express = require('express')
 const morgan = require('morgan');
 var http = require('http')

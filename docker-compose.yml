@@ -1,6 +1,6 @@
 my-http-listener:
-    image: mendhak/http-https-echo
-    environment: 
+    build: .
+    environment:
         - HTTP_PORT=8888
         - HTTPS_PORT=9999
     ports:
